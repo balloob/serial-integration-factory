@@ -9,9 +9,8 @@ A workspace that helps an AI coding agent build, for an RS232-controlled device:
 ## How to use
 
 1. Clone this repo.
-2. **Open a coding agent in this folder** (e.g. [Claude Code](https://claude.com/claude-code)
-   — run `claude` in the repo root). The agent reads [`AGENTS.md`](AGENTS.md) for
-   the full workflow.
+2. **Open a coding agent in this folder** (e.g. run `claude` in the repo root).
+   The agent reads [`AGENTS.md`](AGENTS.md) for the full workflow.
 3. Tell the agent which device you want to support and **where its RS232
    protocol documentation lives** (a path, URL, or PDF).
 
