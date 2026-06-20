@@ -35,6 +35,10 @@ Run `./setup.sh` to clone/update the `reference/` repositories.
 Do not proceed without it — the protocol doc is the source of truth for every
 command, query, and response in the library.
 
+If the user only gives a brand/model (e.g. "Marantz SR7011"), **web search for
+the RS232 / serial protocol documentation** yourself, then confirm the document
+you found with the user before proceeding.
+
 Each device gets its own **parent folder** at the repo root, named after the
 device (lowercase), holding both deliverables. For example, for Marantz:
 
