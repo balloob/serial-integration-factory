@@ -1,0 +1,2 @@
+# Shallow clones of upstream reference repos (fetched via setup.sh)
+/reference/
