@@ -119,12 +119,13 @@ so HACS can install it without a PyPI dependency). This is deliverable 2, at
 custom_components/<domain>/
   <device>_rs232/        -- vendored copy of the library package
   __init__.py
-  config_flow.py         -- ask for the serial port
+  config_flow.py         -- ask for the serial port (see requirements below)
   const.py
   coordinator.py         -- DataUpdateCoordinator wrapping the library
   data.py
   entity.py
-  manifest.json          -- domain, name, config_flow, version, iot_class
+  manifest.json          -- domain, name, config_flow, version, iot_class,
+                            dependencies (see requirements below)
                             (local_push if the device emits unsolicited state
                              changes over serial; otherwise local_polling)
   <platform>.py          -- media_player (or appropriate platform)
@@ -135,6 +136,54 @@ requirements.txt
 README.md
 LICENSE
 ```
+
+#### Config flow — serial port selector (required)
+
+The port field in `config_flow.py` **must** use `SerialPortSelector`, not a
+free-text `TextSelector`. `SerialPortSelector` renders a dropdown populated from
+the `usb` component's aggregated scan (local adapters + ESPHome serial-proxy
+ports) and returns a ready-to-use port URL.
+
+```python
+from homeassistant.helpers.selector import SerialPortSelector
+
+STEP_USER_DATA_SCHEMA = vol.Schema(
+    {
+        vol.Required(CONF_PORT): SerialPortSelector(),
+    }
+)
+```
+
+Pairing requirements (HA enforces these — omitting them causes runtime errors or
+lint failures):
+
+- `manifest.json` must include `"dependencies": ["usb"]` (core registers the
+  serial port list only when `usb` is loaded; pylint rule W7430 rejects
+  `SerialPortSelector` without this dependency).
+- `hacs.json` must include `"homeassistant": "2026.7.0"` (`SerialPortSelector`
+  was introduced in HA 2026.7).
+
+#### Requirements — PyPI-only (required)
+
+The `requirements` list in `manifest.json` (and `requirements.txt`) **must
+contain only PyPI package specifiers** — never a VCS URL such as
+`pkg@git+https://...`. HA installs requirements with `uv pip` when the config
+flow first loads; a VCS URL causes a silent 500 error ("Config flow could not be
+loaded") even though hassfest and HACS CI pass. Because the library is vendored
+into the integration, the only entries needed are its own runtime dependencies
+(e.g. `serialx[esphome]>=1.8.0`).
+
+#### CI gotchas
+
+- **No spaces around `@` in requirement strings.** hassfest rejects
+  `pkg @ url` (with spaces); write `pkg@url` if a PEP 440 URL reference is ever
+  needed for something other than the device library.
+- **GitHub repo topics required for HACS validation.** The HACS validate action
+  fails until the repository has at least the `home-assistant` and
+  `hacs-integration` topics. Add them after creating the repo:
+  ```
+  gh repo edit --add-topic home-assistant --add-topic hacs-integration
+  ```
 
 ### 5. Deliverables
 
